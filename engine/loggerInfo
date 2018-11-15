@@ -1,0 +1,22 @@
+ENGINE DEV USAGE DOCUMENTATION
+-----------------------------------------
+
+-----------------------------------------
+LOGS NAMING CONVENTION
+-----------------------------------------
+[LOG LEVEL]|Class|Method|Message
+
+which in practice means something like that:
+[ERROR]|fileService|readDir|
+or
+[WARN]|eventBus|handleProcess|Undefined process name
+
+LOG LEVELS:
+ERROR
+WARN
+NOTE
+DEV
+-----------------------------------------
+-----------------------------------------
+
+

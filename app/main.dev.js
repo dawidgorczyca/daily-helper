@@ -15,6 +15,13 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 
+// Event bus configuration
+import eventBus from '../engine/eventBus/eventBus.init'
+import ipcLayer from './ipc.events'
+eventBus.init()
+ipcLayer.init(eventBus.interface.events)
+const frontendEvents = ipcLayer.eventsList
+
 export default class AppUpdater {
   constructor() {
     log.transports.file.level = 'info';

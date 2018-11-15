@@ -1,44 +1,53 @@
-import { createStore, applyMiddleware, compose } from 'redux';
-import thunk from 'redux-thunk';
-import { createHashHistory } from 'history';
-import { routerMiddleware, routerActions } from 'connected-react-router';
-import { createLogger } from 'redux-logger';
-import createRootReducer from '../reducers';
-import * as counterActions from '../actions/counter';
-import type { counterStateType } from '../reducers/types';
+import { createStore, applyMiddleware, compose } from 'redux'
+import thunk from 'redux-thunk'
+import { createHashHistory } from 'history'
+import { routerMiddleware, routerActions } from 'connected-react-router'
+import { createLogger } from 'redux-logger'
 
-const history = createHashHistory();
+// Reducers
+import rootReducer from '../dataLayer/reducers'
+// Middlewares
+import ipcMiddleware from '../dataLayer/middlewares/ipc.middleware'
+import userDataMiddleware from '../dataLayer/middlewares/userData.middleware'
 
-const rootReducer = createRootReducer(history);
+// Actions
+import * as userDataActions from '../dataLayer/actions/userData.actions'
+import * as ipcActions from '../dataLayer/actions/ipc.actions'
 
-const configureStore = (initialState?: counterStateType) => {
+const history = createHashHistory()
+
+const configureStore = (initialState) => {
   // Redux Configuration
-  const middleware = [];
-  const enhancers = [];
+  const middleware = [
+    ipcMiddleware,
+    userDataMiddleware
+  ]
+  const enhancers = []
 
   // Thunk Middleware
-  middleware.push(thunk);
+  middleware.push(thunk)
 
   // Logging Middleware
   const logger = createLogger({
     level: 'info',
     collapsed: true
-  });
+  })
 
   // Skip redux logs in console during the tests
   if (process.env.NODE_ENV !== 'test') {
-    middleware.push(logger);
+    middleware.push(logger)
   }
 
   // Router Middleware
-  const router = routerMiddleware(history);
-  middleware.push(router);
+  const router = routerMiddleware(history)
+  middleware.push(router)
 
   // Redux DevTools Configuration
   const actionCreators = {
-    ...counterActions,
+    ...ipcActions,
+    ...userDataActions,
     ...routerActions
-  };
+  }
   // If Redux DevTools Extension is installed use it, otherwise use Redux compose
   /* eslint-disable no-underscore-dangle */
   const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
@@ -46,25 +55,25 @@ const configureStore = (initialState?: counterStateType) => {
         // Options: http://extension.remotedev.io/docs/API/Arguments.html
         actionCreators
       })
-    : compose;
+    : compose
   /* eslint-enable no-underscore-dangle */
 
   // Apply Middleware & Compose Enhancers
-  enhancers.push(applyMiddleware(...middleware));
-  const enhancer = composeEnhancers(...enhancers);
+  enhancers.push(applyMiddleware(...middleware))
+  const enhancer = composeEnhancers(...enhancers)
 
   // Create Store
-  const store = createStore(rootReducer, initialState, enhancer);
+  const store = createStore(rootReducer, initialState, enhancer)
 
   if (module.hot) {
     module.hot.accept(
-      '../reducers',
+      '../dataLayer/reducers',
       // eslint-disable-next-line global-require
-      () => store.replaceReducer(require('../reducers').default)
-    );
+      () => store.replaceReducer(require('../dataLayer/reducers').default)
+    )
   }
 
-  return store;
-};
+  return store
+}
 
-export default { configureStore, history };
+export default { configureStore, history }
